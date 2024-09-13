@@ -1,6 +1,11 @@
 "use client";
 
-import { cn } from "@/lib/utils";
+import routes from "@/config/routes";
+import { cn } from "@/lib/utils/ui-utils";
+import {
+  RegisterLink,
+  useKindeBrowserClient,
+} from "@kinde-oss/kinde-auth-nextjs";
 import Link from "next/link";
 import { buttonVariants } from "../ui/button";
 
@@ -10,10 +15,14 @@ const btnClasses = cn(
 );
 
 export function GetStartedButton() {
-  // TODO: Add Authentication and dynamic routing
+  const { isAuthenticated } = useKindeBrowserClient();
+
+  if (!isAuthenticated) {
+    return <RegisterLink className={btnClasses}>Get Started 👉</RegisterLink>;
+  }
 
   return (
-    <Link href={"#"} className={btnClasses}>
+    <Link href={routes.dashboard} className={btnClasses}>
       Get Started 👉
     </Link>
   );

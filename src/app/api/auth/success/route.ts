@@ -1,37 +1,33 @@
-import { prisma } from "@/lib/prisma/client";
-import { getKindeServerSession } from "@kinde-oss/kinde-auth-nextjs/server";
-import { faker } from "@faker-js/faker";
-import colors from "tailwindcss/colors";
-import { NextResponse } from "next/server";
 import routes, { baseUrl } from "@/config/routes";
+import { prisma } from "@/lib/prisma/client";
+import { faker } from "@faker-js/faker";
+import { getKindeServerSession } from "@kinde-oss/kinde-auth-nextjs/server";
+import { NextResponse } from "next/server";
+import colors from "tailwindcss/colors";
 
-// This route will run every time a user signs up or signs in
-export default async function GET() {
+// Will run every time a user signs up or sign in
+export async function GET() {
   const { getUser } = getKindeServerSession();
 
   const user = await getUser();
 
   if (!user || !user.id) {
-    throw new Error("Something went wrong with authentication" + user);
+    throw new Error("Something went wrong with authentication: " + user);
   }
 
-  // Check if the user exists in the database
-
+  // Check if the user exists in the db
   let dbUser = await prisma.user.findUnique({
-    where: {
-      id: user.id,
-    },
+    where: { id: user.id },
   });
 
-  // If the user is not found, we will create a new user
-
+  // User were not found, we will create it
   if (!dbUser) {
     dbUser = await prisma.user.create({
       data: {
         id: user.id,
-        email: user.email ?? "",
         displayName:
           user.username ?? user.given_name ?? faker.internet.userName(),
+        email: user.email ?? "",
         color: faker.helpers.arrayElement([
           colors.emerald["500"],
           colors.yellow["500"],
@@ -45,6 +41,6 @@ export default async function GET() {
     });
   }
 
-  // Redirect user to dashboard
+  // Redirect the user to dashboard page
   return NextResponse.redirect(`${baseUrl}${routes.dashboard}`);
 }

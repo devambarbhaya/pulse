@@ -16,4 +16,110 @@ model User {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  events         Event[]            @relation("owner")
+  participations EventParticipant[]
+  questions      Question[]
+  upvotes        QuestionUpvote[]
+  votes          PollVote[]
+}
+
+model Event {
+  id          String  @id @default(cuid()) @map("_id")
+  displayName String  @db.VarChar(255)
+  slug        String  @unique @db.VarChar(255)
+  description String? @db.Text
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  owner   User   @relation("owner", fields: [ownerId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  ownerId String
+
+  participants EventParticipant[]
+  questions    Question[]
+  polls        Poll[]
+
+  @@unique([slug, ownerId]) // An event is uniquely identifies with its ownerId and the event slug
+  @@index([slug, ownerId])
+}
+
+model EventParticipant {
+  event   Event  @relation(fields: [eventId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  eventId String
+
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  userId String
+
+  @@id([eventId, userId])
+}
+
+model Question {
+  id         String  @id @default(cuid())
+  body       String  @db.Text
+  isPinned   Boolean @default(false)
+  isResolved Boolean @default(false)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  event   Event  @relation(fields: [eventId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  eventId String
+
+  author   User   @relation(fields: [authorId], references: [id])
+  authorId String
+
+  upvotes QuestionUpvote[]
+}
+
+model QuestionUpvote {
+  question   Question @relation(fields: [questionId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  questionId String
+
+  author   User   @relation(fields: [authorId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  authorId String
+
+  @@id([authorId, questionId])
+}
+
+model Poll {
+  id     String  @id @default(cuid())
+  body   String  @db.Text
+  isLive Boolean @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  event   Event  @relation(fields: [eventId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  eventId String
+
+  options PollOption[]
+  votes   PollVote[]
+}
+
+model PollOption {
+  id    String @id @default(cuid())
+  index Int
+  body  String @db.Text
+
+  poll   Poll   @relation(fields: [pollId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  pollId String
+
+  votes PollVote[]
+
+  @@unique([pollId, index])
+  @@index([pollId, index])
+}
+
+model PollVote {
+  author   User   @relation(fields: [authorId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  authorId String
+
+  pollOption   PollOption @relation(fields: [pollOptionId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  pollOptionId String
+
+  poll   Poll   @relation(fields: [pollId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  pollId String
+
+  @@id([authorId, pollId]) // An user can only vote a single poll options
 }

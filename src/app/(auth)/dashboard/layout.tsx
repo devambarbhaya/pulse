@@ -1,3 +1,7 @@
+import {
+  DesktopDashboardSidebar,
+  MobileDashboardSidebar,
+} from "@/components/layout/DashboardSidebar";
 import routes from "@/config/routes";
 import { getKindeServerSession } from "@kinde-oss/kinde-auth-nextjs/server";
 import { redirect } from "next/navigation";
@@ -12,5 +16,13 @@ export default async function DashboardLayout({ children }: PropsWithChildren) {
     redirect(routes.login);
   }
 
-  return <div>{children}</div>;
+  return (
+    <div className="flex flex-row h-full">
+      <DesktopDashboardSidebar />
+      <div className="flex flex-col overflow-auto w-full items-start grow-1">
+        <MobileDashboardSidebar />
+        {children}
+      </div>
+    </div>
+  );
 }

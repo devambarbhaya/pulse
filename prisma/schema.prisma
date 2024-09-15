@@ -9,7 +9,7 @@ datasource db {
 }
 
 model User {
-  id          String @id @unique // This is the same id provided by Kinde Auth
+  id          String @id @unique // this is the same id provided by Kinde
   email       String @unique
   displayName String @db.VarChar(255)
   color       String @db.VarChar(255)
@@ -21,26 +21,60 @@ model User {
   participations EventParticipant[]
   questions      Question[]
   upvotes        QuestionUpvote[]
-  votes          PollVote[]
+  pollVotes      PollVote[]
+  bookmarks      Event[]
+  notifications  Notification[]
+}
+
+enum NotificationType {
+  NEW_QUESTION
+  QUESTION_UPVOTE
+  QUESTION_RESOLVED
+  QUESTION_PINNED
+  POLL_CLOSED
+}
+
+model Notification {
+  id   String           @id @default(cuid())
+  read Boolean          @default(false)
+  seen Boolean          @default(false)
+  type NotificationType
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  event   Event  @relation(fields: [eventId], references: [id])
+  eventId String
+
+  question   Question? @relation(fields: [questionId], references: [id])
+  questionId String?
+
+  poll   Poll?   @relation(fields: [pollId], references: [id])
+  pollId String?
+
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  userId String
 }
 
 model Event {
   id          String  @id @default(cuid()) @map("_id")
   displayName String  @db.VarChar(255)
-  slug        String  @unique @db.VarChar(255)
+  slug        String  @db.VarChar(255)
   description String? @db.Text
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  participants  EventParticipant[]
+  questions     Question[]
+  polls         Poll[]
+  bookmarkedBy  User[]
+  notifications Notification[]
+
   owner   User   @relation("owner", fields: [ownerId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   ownerId String
 
-  participants EventParticipant[]
-  questions    Question[]
-  polls        Poll[]
-
-  @@unique([slug, ownerId]) // An event is uniquely identifies with its ownerId and the event slug
+  @@unique([slug, ownerId]) // an Event is uniquely identified by the ownerId and the event slug
   @@index([slug, ownerId])
 }
 
@@ -63,13 +97,14 @@ model Question {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  upvotes       QuestionUpvote[]
+  notifications Notification[]
+
   event   Event  @relation(fields: [eventId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   eventId String
 
   author   User   @relation(fields: [authorId], references: [id])
   authorId String
-
-  upvotes QuestionUpvote[]
 }
 
 model QuestionUpvote {
@@ -90,11 +125,12 @@ model Poll {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  options       PollOption[]
+  votes         PollVote[]
+  notifications Notification[]
+
   event   Event  @relation(fields: [eventId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   eventId String
-
-  options PollOption[]
-  votes   PollVote[]
 }
 
 model PollOption {
@@ -102,10 +138,10 @@ model PollOption {
   index Int
   body  String @db.Text
 
+  votes PollVote[]
+
   poll   Poll   @relation(fields: [pollId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   pollId String
-
-  votes PollVote[]
 
   @@unique([pollId, index])
   @@index([pollId, index])
@@ -121,5 +157,5 @@ model PollVote {
   poll   Poll   @relation(fields: [pollId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   pollId String
 
-  @@id([authorId, pollId]) // An user can only vote a single poll options
+  @@id([authorId, pollId]) // an user can only vote a single poll option
 }

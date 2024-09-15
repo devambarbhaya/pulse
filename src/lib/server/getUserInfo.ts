@@ -8,5 +8,15 @@ export async function getUserInfo(userId: User["id"]) {
     where: {
       id: userId,
     },
+    include: {
+      _count: {
+        select: {
+          events: true,
+          questions: true,
+          participations: true,
+          bookmarks: true,
+        },
+      },
+    },
   });
 }

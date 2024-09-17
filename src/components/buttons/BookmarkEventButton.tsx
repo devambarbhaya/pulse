@@ -17,6 +17,7 @@ import {
 import { useCallback, useEffect, useState } from "react";
 import { toast } from "@/hooks/use-toast";
 import debounce from "lodash.debounce";
+import { useIsParticipatingView } from "@/hooks/useIsParticipatingView";
 
 type BookmarkEventButtonProps = {
   event: EventDetail;
@@ -25,7 +26,7 @@ type BookmarkEventButtonProps = {
 export function BookmarkEventButton({ event }: BookmarkEventButtonProps) {
   const { user } = useKindeBrowserClient();
   const [isBookmarked, setIsBookmarked] = useState(false);
-  const isParticipatingView = false;
+  const isParticipatingView = useIsParticipatingView();
 
   useEffect(() => {
     setIsBookmarked(
@@ -61,7 +62,7 @@ export function BookmarkEventButton({ event }: BookmarkEventButtonProps) {
     [event.id]
   );
 
-  if (isParticipatingView) {
+  if (!isParticipatingView) {
     return null;
   }
 

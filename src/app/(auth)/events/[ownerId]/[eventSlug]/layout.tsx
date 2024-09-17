@@ -1,5 +1,7 @@
 import { BookmarkEventButton } from "@/components/buttons/BookmarkEventButton";
 import { CopyEventLinkButton } from "@/components/buttons/CopyEventLinkButton";
+import { EventSidebar } from "@/components/layout/EventSidebar";
+import { EventTabsNavigation } from "@/components/layout/EventTabsNavigation";
 import { EventAdminMenu } from "@/components/menu/EventAdminMenu";
 import { ParticipantsTooltip } from "@/components/tooltip/ParticipantsTooltip";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -54,7 +56,7 @@ export default async function EventLayout({
               {event.description}
             </p>
           )}
-          {/* EVent Organizer */}
+          {/* Event Organizer */}
           <div className="inline-flex items-center gap-x-2 mt-2">
             <span className="text-xs lg:text-sm">
               <span className="text-slate-600">Organized by </span>
@@ -83,11 +85,28 @@ export default async function EventLayout({
           </div>
         </div>
       </div>
-      {/* Main content: Either Q&A or Polls */}
-      <div className="w-full h-full overflow-auto pb-4">
-        <ScrollArea className="relative h-full bg-white px-2.5 py-4 rounded-b-lg lg:rounded-lg lg:p-6">
-          {children}
-        </ScrollArea>
+      <div className="w-full flex flex-1 flex-col lg:flex-row overflow-auto gap-x-4 pt-6">
+        {/* Mobile Tabs Navigation */}
+        <EventTabsNavigation
+          className="rounded-t-md lg:hidden"
+          ownerId={ownerId}
+          eventSlug={eventSlug}
+        />
+        {/* Desktop Left Sidebar */}
+        <div className="hidden lg:pb-10 lg:block">
+          <EventSidebar
+            ownerId={ownerId}
+            eventSlug={eventSlug}
+            questionsCount={event._count.questions}
+            pollsCount={event._count.polls}
+          />
+        </div>
+        {/* Main content: Either Q&A or Polls */}
+        <div className="w-full h-full overflow-auto pb-4">
+          <ScrollArea className="relative h-full bg-white px-2.5 py-4 rounded-b-lg lg:rounded-lg lg:p-6">
+            {children}
+          </ScrollArea>
+        </div>
       </div>
     </div>
   );

@@ -13,6 +13,7 @@ import { EventDetail } from "@/lib/prisma/validators/eventValidators";
 import { useKindeBrowserClient } from "@kinde-oss/kinde-auth-nextjs";
 import { useState } from "react";
 import { DeleteEventDialog } from "../dialogs/DeleteEventDialog";
+import { useIsParticipatingView } from "@/hooks/useIsParticipatingView";
 
 type EventAdminMenuProps = PropsWithClassName<{
   event: EventDetail;
@@ -23,7 +24,7 @@ export function EventAdminMenu({ event, className }: EventAdminMenuProps) {
   const [openUpdateDialog, setOpenUpdateDialog] = useState(false);
   const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
   const isAdmin = user?.id === event.ownerId;
-  const isParticipantView = false;
+  const isParticipantView = useIsParticipatingView();
 
   if (isParticipantView || !isAdmin) {
     return null;

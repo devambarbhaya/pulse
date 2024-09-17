@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Noto_Sans } from "next/font/google";
 import "./globals.css";
 import { cn } from "@/lib/utils/ui-utils";
+import { Toaster } from "@/components/ui/toaster";
 
 const notoSans = Noto_Sans({ subsets: ["latin"] });
 
@@ -17,6 +18,7 @@ export default function RootLayout({
     <html lang="en" className="h-full" suppressHydrationWarning>
       <body className={cn("h-full bg-zinc-100", notoSans.className)}>
         {children}
+        <Toaster />
       </body>
     </html>
   );

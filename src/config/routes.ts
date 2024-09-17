@@ -1,4 +1,11 @@
+import { Event } from "@prisma/client";
+
 export const baseUrl = process.env.NEXT_PUBLIC_BASE_URL as string;
+
+type EventRouteParams = {
+  ownerId: Event["ownerId"];
+  eventSlug: Event["slug"];
+};
 
 export default {
   home: "/",
@@ -7,6 +14,10 @@ export default {
   dashboard: "/dashboard",
   account: "/dashboard/account",
   bookmarks: "/dashboard/bookmarks",
-
-  // TODO: Add event routes
+  event: ({ eventSlug, ownerId }: EventRouteParams) => {
+    return `/events/${ownerId}/${eventSlug}`;
+  },
+  eventPolls: ({ eventSlug, ownerId }: EventRouteParams) => {
+    return `/events/${ownerId}/${eventSlug}/polls`;
+  },
 } as const;

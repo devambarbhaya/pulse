@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader } from "./ui/card";
 import { cn, PropsWithClassName } from "@/lib/utils/ui-utils";
 import { EventDetail } from "@/lib/prisma/validators/eventValidators";
 import { Users } from "lucide-react";
+import routes from "@/config/routes";
 
 export function EventCard({
   event,
@@ -13,7 +14,13 @@ export function EventCard({
   const pollsCount = event._count.polls;
 
   return (
-    <Link href={"#"} prefetch={false}>
+    <Link
+      href={routes.event({
+        ownerId: event.ownerId,
+        eventSlug: event.slug,
+      })}
+      prefetch={false}
+    >
       <Card
         className={cn(
           "rounded-none border-l-[4px] border-b-0 border-t-0 border-r-0 border-gray-400/80",
